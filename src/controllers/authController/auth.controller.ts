@@ -214,7 +214,7 @@ class AuthController {
 	async changePassword(req: Request, res: Response) {
 		try {
 			const { phoneOrMail, password, confirm } = req.body
-
+			console.log( req.body)
 			const { user, error } = await userService.checkUser(phoneOrMail)
 
 			if (!user || error.isError)
