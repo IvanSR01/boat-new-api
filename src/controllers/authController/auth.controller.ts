@@ -23,11 +23,15 @@ class AuthController {
 				code,
 			})
 		} catch (error) {
-			return res.status(500).json({ message: 'Ошибка при прозвоне' })
+			console.log(error)
+			return res
+				.status(500)
+				.json({ message: 'Ошибка при прозвоне', error: JSON.stringify(error) })
 		}
 	}
 	async hasUser(req: Request, res: Response) {
 		try {
+			console.log(req)
 			const { phone, email } = req.body
 			const userByPhone = await userService.findUserByPhone(
 				userService.setPhone(phone)
@@ -43,11 +47,18 @@ class AuthController {
 					message: 'E-mai уже занят',
 					type: 'email',
 				})
-
+			const { error, code } = await callApiService.flashCall(
+				userService.setPhone(phone)
+			)
+			if (error.isError)
+				return res.status(error.errorStatus || 500).json({
+					message: error.errorMessage,
+				})
 			return res.json({
 				message: 'Пользователь не существует',
 				phone,
 				email,
+				code,
 			})
 		} catch (error) {
 			console.error('Ошибка при проверке пользователя:', error)

@@ -29,6 +29,7 @@ class CallApiService {
 			const { data: response } = await axios<TypeCallApi>(this.axiosConfig)
 			return { code: response.data.pincode, error: { isError: false } }
 		} catch (error) {
+			console.log(error)
 			return {
 				code: null,
 				error: {
