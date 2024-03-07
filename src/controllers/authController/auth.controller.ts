@@ -78,10 +78,10 @@ class AuthController {
 				})
 
 			const isValidPass = compare(password, user.password)
-
+			console.log(isValidPass, password, user.password)
 			if (!isValidPass)
 				return res.status(401).json({
-					message: 'Пароль не верный',
+					message: 'Телефон, почта или пароль неверны',
 					type: password,
 				})
 
