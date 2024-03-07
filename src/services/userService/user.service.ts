@@ -1,9 +1,6 @@
 import { UserModel } from '../../db/models/user.model.js'
 import authService from '../authService/auth.service.js'
-import {
-	TypeResultCheckUser,
-	TypeReturnUserField,
-} from './user.types.js'
+import { TypeResultCheckUser, TypeReturnUserField } from './user.types.js'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -57,12 +54,28 @@ class UserService {
 	}
 
 	setPhone(phoneNumber: string) {
-		// Меняем на международный формат
-		if (phoneNumber.startsWith('8')) {
-			phoneNumber = '+7' + phoneNumber.slice(1)
-		}
+		// Удаляем все символы, кроме цифр
+		const cleanedPhoneNumber = phoneNumber.replace(/\D/g, '')
 
-		return phoneNumber
+		// Добавляем международный код, если номер начинается с "8" и имеет девять цифр
+		if (
+			cleanedPhoneNumber.startsWith('8') &&
+			cleanedPhoneNumber.length === 10
+		) {
+			return '+7' + cleanedPhoneNumber.slice(1)
+		}
+		// console.log(phoneNumber, cleanedPhoneNumber);
+
+		if (cleanedPhoneNumber.startsWith('+7')) return cleanedPhoneNumber
+		// Удаляем начальный "+" и добавляем международный код, если его нет
+		if (
+			!cleanedPhoneNumber.startsWith('+') &&
+			cleanedPhoneNumber.charAt(2) !== '7'
+		) {
+			return '+7' + cleanedPhoneNumber.slice(1)
+		} else {
+			return '+' + cleanedPhoneNumber
+		}
 	}
 
 	async checkUser(phoneOrMail: string): Promise<TypeResultCheckUser> {

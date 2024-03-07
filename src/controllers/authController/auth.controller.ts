@@ -74,8 +74,7 @@ class AuthController {
 					type: password,
 				})
 
-			const tokens = authService.getNewTokens(user.id)
-
+			const tokens = await authService.getNewTokens(user.id)
 			return res.json({
 				...userService.returnUserField(user, user.role === 'seller'),
 				...tokens,
@@ -214,7 +213,7 @@ class AuthController {
 	async changePassword(req: Request, res: Response) {
 		try {
 			const { phoneOrMail, password, confirm } = req.body
-			console.log( req.body)
+			console.log(req.body)
 			const { user, error } = await userService.checkUser(phoneOrMail)
 
 			if (!user || error.isError)

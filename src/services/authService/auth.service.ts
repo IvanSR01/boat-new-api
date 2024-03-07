@@ -20,7 +20,6 @@ class AuthService {
 		const refreshToken = jwt.sign(data, process.env.JWT_SECRET as string, {
 			expiresIn: '15d',
 		})
-
 		return {
 			accessToken,
 			refreshToken,
