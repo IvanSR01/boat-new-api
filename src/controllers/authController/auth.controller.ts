@@ -10,7 +10,11 @@ class AuthController {
 	async getCode(req: Request, res: Response) {
 		try {
 			const { phone } = req.body
-
+			const user = await userService.findUserByPhone(phone)
+			if (!user)
+				return res.status(404).json({
+					message: 'Пользователь не найден',
+				})
 			const { error, code } = await callApiService.flashCall(
 				userService.setPhone(phone)
 			)
@@ -18,7 +22,6 @@ class AuthController {
 				return res.status(error.errorStatus || 500).json({
 					message: error.errorMessage,
 				})
-
 			return res.json({
 				code,
 			})
@@ -31,7 +34,6 @@ class AuthController {
 	}
 	async hasUser(req: Request, res: Response) {
 		try {
-			console.log(req)
 			const { phone, email } = req.body
 			const userByPhone = await userService.findUserByPhone(
 				userService.setPhone(phone)
@@ -54,6 +56,8 @@ class AuthController {
 				return res.status(error.errorStatus || 500).json({
 					message: error.errorMessage,
 				})
+			console.log(code)
+
 			return res.json({
 				message: 'Пользователь не существует',
 				phone,
