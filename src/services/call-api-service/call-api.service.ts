@@ -12,6 +12,7 @@ class CallApiService {
 		this.axiosConfig = {
 			method: 'post',
 			maxBodyLength: Infinity,
+			timeout: 10000,
 			url: 'https://zvonok.com/manager/cabapi_external/api/v1/phones/flashcall/',
 			headers: {
 				...this.data.getHeaders(),
@@ -34,7 +35,7 @@ class CallApiService {
 				code: null,
 				error: {
 					isError: true,
-					errorMessage: 'Ошибка при прозвоне',
+					errorMessage: 'Ошибка при прозвоне, повторите чуть позже',
 					errorStatus: 500,
 				},
 			}

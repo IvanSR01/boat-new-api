@@ -7,70 +7,53 @@ import dotenv from 'dotenv'
 import callApiService from '../../services/call-api-service/call-api.service.js'
 dotenv.config()
 class AuthController {
-	async getCode(req: Request, res: Response) {
-		try {
-			const { phone } = req.body
-			const user = await userService.findUserByPhone(phone)
-			if (!user)
-				return res.status(404).json({
-					message: 'Пользователь не найден',
-				})
-			const { error, code } = await callApiService.flashCall(
-				userService.setPhone(phone)
-			)
-			if (error.isError)
-				return res.status(error.errorStatus || 500).json({
-					message: error.errorMessage,
-				})
-			return res.json({
-				code,
-			})
-		} catch (error) {
-			console.log(error)
-			return res
-				.status(500)
-				.json({ message: 'Ошибка при прозвоне', error: JSON.stringify(error) })
-		}
-	}
-	async hasUser(req: Request, res: Response) {
-		try {
-			const { phone, email } = req.body
-			const userByPhone = await userService.findUserByPhone(
-				userService.setPhone(phone)
-			)
-			if (userByPhone)
-				return res.status(409).json({
-					message: 'Телефон уже занят',
-					type: 'phone',
-				})
-			const userByMail = await userService.findUserByEmail(email)
-			if (userByMail)
-				return res.status(409).json({
-					message: 'E-mai уже занят',
-					type: 'email',
-				})
-			const { error, code } = await callApiService.flashCall(
-				userService.setPhone(phone)
-			)
-			if (error.isError)
-				return res.status(error.errorStatus || 500).json({
-					message: error.errorMessage,
-				})
-			console.log(code)
+async hasUser(req: Request, res: Response) {
+    try {
+        const { phone, email, isReset } = req.body;
+        const userByPhone = await userService.findUserByPhone(userService.setPhone(phone));
+        const userByMail = await userService.findUserByEmail(email);
 
-			return res.json({
-				message: 'Пользователь не существует',
-				phone,
-				email,
-				code,
-			})
-		} catch (error) {
-			console.error('Ошибка при проверке пользователя:', error)
-			return res.status(500).json({
-				message: 'Ошибка при проверке пользователя',
-			})
-		}
-	}
+        if (isReset) {
+            if (!userByPhone && !userByMail) {
+                return res.status(404).json({
+                    message: 'Пользователь не найден',
+                });
+            } else {
+                return res.json({
+                    user: true,
+                    phone,
+                    email,
+                });
+            }
+        }
+
+        if (userByPhone) {
+            return res.status(409).json({
+                message: 'Телефон уже занят',
+                type: 'phone',
+            });
+        }
+
+        if (userByMail) {
+            return res.status(409).json({
+                message: 'E-mail уже занят',
+                type: 'email',
+            });
+        }
+
+        return res.json({
+            user: false,
+            phone,
+            email,
+        });
+    } catch (error) {
+        console.error('Ошибка при проверке пользователя:', error);
+        return res.status(500).json({
+            message: 'Ошибка при проверке пользователя',
+        });
+    }
+}
+
 	async login(req: Request, res: Response) {
 		try {
 			const { phoneOrMail, password } = req.body
